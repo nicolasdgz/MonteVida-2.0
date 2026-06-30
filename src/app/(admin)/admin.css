@@ -1,0 +1,76 @@
+/* ── Surface del sidebar ── */
+.surface-sidebar {
+  background-color: var(--sidebar);
+}
+
+/* ── Input field ── */
+.input-field {
+  width: 100%;
+  border-radius: 0.75rem;
+  background-color: var(--background);
+  box-shadow: var(--shadow-neu-inset);
+  border: 0;
+  color: var(--foreground);
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  padding: 0.625rem 0.75rem;
+  outline: none;
+  transition: box-shadow 0.15s ease;
+}
+.input-field::placeholder {
+  color: color-mix(in oklch, var(--muted-foreground) 65%, transparent);
+}
+.input-field:focus {
+  box-shadow: var(--shadow-neu-inset), 0 0 0 2px color-mix(in oklch, var(--ring) 28%, transparent);
+}
+.input-field:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.admin-root.dark .input-field {
+  background-color: var(--card);
+  box-shadow: none;
+  border: 1px solid var(--border);
+  color: var(--foreground);
+}
+.admin-root.dark .input-field::placeholder {
+  color: var(--muted-foreground);
+}
+.admin-root.dark .input-field:focus {
+  box-shadow: none;
+  border-color: color-mix(in oklch, var(--ring) 55%, transparent);
+  outline: 2px solid transparent;
+}
+
+/* ── Card de resumen de venta ── */
+.surface-resumen {
+  background-color: var(--card);
+}
+.resumen-ring {
+  background: linear-gradient(
+    145deg,
+    color-mix(in oklch, var(--primary) 30%, transparent) 0%,
+    color-mix(in oklch, var(--primary) 5%, transparent) 50%,
+    color-mix(in oklch, var(--primary) 15%, transparent) 100%
+  );
+}
+
+/* ── Active nav bar ── */
+.active-nav-bar {
+  background: var(--sidebar-primary);
+  box-shadow:
+    0 0 8px color-mix(in oklch, var(--sidebar-primary) 50%, transparent),
+    0 0 16px color-mix(in oklch, var(--sidebar-primary) 20%, transparent);
+}
+
+/* ── Tipografía admin ── */
+.admin-root h1,
+.admin-root h2 {
+  font-family: var(--font-heading, var(--font-sans));
+}
+.admin-root p,
+.admin-root label,
+.admin-root nav {
+  font-family: var(--font-body, var(--font-sans));
+}

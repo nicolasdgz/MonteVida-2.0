@@ -1,0 +1,14 @@
+.site-root {
+  background-color: var(--background);
+  min-height: 100vh;
+}
+
+.site-root h1,
+.site-root h2 {
+  font-family: var(--font-heading);
+}
+
+.site-root p,
+.site-root nav {
+  font-family: var(--font-body);
+}
