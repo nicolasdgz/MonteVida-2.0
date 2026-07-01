@@ -25,17 +25,19 @@ export async function signIn(
     if (error.message.includes('Invalid login credentials')) {
       return { error: 'Email o contraseña incorrectos.' }
     }
-    return { error: error.message }
+    return { error: `[signIn] ${error.message}` }
   }
 
-  if (!session) return { error: 'Error inesperado. Intentá de nuevo.' }
+  if (!session) return { error: '[signIn] Sin sesión.' }
 
   // Transferir sesión al cliente SSR para que setee cookies httpOnly
   const supabase = await createClient()
-  await supabase.auth.setSession({ access_token: session.access_token, refresh_token: session.refresh_token })
+  const { error: setErr } = await supabase.auth.setSession({ access_token: session.access_token, refresh_token: session.refresh_token })
+  if (setErr) return { error: `[setSession] ${setErr.message}` }
 
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) return { error: 'Error inesperado. Intentá de nuevo.' }
+  const { data: { user }, error: userErr } = await supabase.auth.getUser()
+  if (userErr) return { error: `[getUser] ${userErr.message}` }
+  if (!user) return { error: '[getUser] Sin usuario.' }
 
   const { data: profile } = await supabase
     .from('profiles')
