@@ -8,8 +8,8 @@ const https = require('https')
 const http = require('http')
 const { createClient } = require('@supabase/supabase-js')
 
-const SUPABASE_URL = 'https://pvurmbrdifngjytkkcwu.supabase.co'
-const SERVICE_ROLE_KEY = 'REMOVED'
+const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL
+const SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY
 const STORAGE_BUCKET = 'product-images'
 const BASE_OLD = 'https://www.montevida.pe/producto/'
 
