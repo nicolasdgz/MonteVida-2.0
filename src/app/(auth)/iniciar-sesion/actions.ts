@@ -1,7 +1,7 @@
 ﻿'use server'
 
 import { redirect } from 'next/navigation'
-import { createClient } from '@/lib/supabase/server'
+import { createClient, createAuthClient } from '@/lib/supabase/server'
 
 interface ActionState {
   error: string | null
@@ -16,8 +16,10 @@ export async function signIn(
 
   if (!email || !password) return { error: 'Completa todos los campos.' }
 
-  const supabase = await createClient()
-  const { error } = await supabase.auth.signInWithPassword({ email, password })
+  // Auth sin PKCE — @supabase/ssr 0.10.x fuerza PKCE que requiere redirect URL
+  // no disponible en Server Actions, lo que causa "Invalid path in request URL".
+  const authClient = createAuthClient()
+  const { data: { session }, error } = await authClient.auth.signInWithPassword({ email, password })
 
   if (error) {
     if (error.message.includes('Invalid login credentials')) {
@@ -26,7 +28,12 @@ export async function signIn(
     return { error: error.message }
   }
 
-  // Redirigir según rol
+  if (!session) return { error: 'Error inesperado. Intentá de nuevo.' }
+
+  // Transferir sesión al cliente SSR para que setee cookies httpOnly
+  const supabase = await createClient()
+  await supabase.auth.setSession({ access_token: session.access_token, refresh_token: session.refresh_token })
+
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return { error: 'Error inesperado. Intentá de nuevo.' }
 

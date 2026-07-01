@@ -40,3 +40,12 @@ export async function createAdminClient() {
     }
   )
 }
+
+// Cliente raw sin SSR/PKCE — solo para signInWithPassword en Server Actions.
+export function createAuthClient() {
+  return createSupabaseClient<Database>(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    { auth: { flowType: 'implicit', persistSession: false, autoRefreshToken: false } }
+  )
+}
