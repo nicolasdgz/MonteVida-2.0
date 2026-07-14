@@ -21,6 +21,7 @@ interface InventarioClientProps {
 }
 
 type FiltroStock = 'todos' | 'con_stock' | 'bajo' | 'sin_stock'
+type FiltroActivo = 'todos' | 'activos' | 'inactivos'
 
 export function InventarioClient({ products: initial, categories: initialCats, currentPage, totalPages, totalCount }: InventarioClientProps) {
   const router = useRouter()
@@ -33,6 +34,7 @@ export function InventarioClient({ products: initial, categories: initialCats, c
   const [search, setSearch] = useState('')
   const [filtroCategoria, setFiltroCategoria] = useState('')
   const [filtroStock, setFiltroStock] = useState<FiltroStock>('todos')
+  const [filtroActivo, setFiltroActivo] = useState<FiltroActivo>('activos')
   const [gestionCats, setGestionCats] = useState(false)
   const [modalOpen, setModalOpen] = useState(false)
   const [editando, setEditando] = useState<ProductWithCategory | null>(null)
@@ -53,9 +55,14 @@ export function InventarioClient({ products: initial, categories: initialCats, c
         (filtroStock === 'bajo' && p.stock > 0 && p.stock <= p.stock_minimo) ||
         (filtroStock === 'sin_stock' && p.stock === 0)
 
-      return matchSearch && matchCat && matchStock
+      const matchActivo =
+        filtroActivo === 'todos' ||
+        (filtroActivo === 'activos' && p.activo) ||
+        (filtroActivo === 'inactivos' && !p.activo)
+
+      return matchSearch && matchCat && matchStock && matchActivo
     })
-  }, [products, search, filtroCategoria, filtroStock])
+  }, [products, search, filtroCategoria, filtroStock, filtroActivo])
 
   const stockBajoCount = products.filter((p) => p.activo && p.stock > 0 && p.stock <= p.stock_minimo).length
   const sinStockCount = products.filter((p) => p.activo && p.stock === 0).length
@@ -215,6 +222,17 @@ export function InventarioClient({ products: initial, categories: initialCats, c
             </button>
           )}
         </div>
+
+        {/* Estado activo */}
+        <select
+          value={filtroActivo}
+          onChange={(e) => setFiltroActivo(e.target.value as FiltroActivo)}
+          className="input-field sm:!w-36"
+        >
+          <option value="todos">Todos</option>
+          <option value="activos">Solo activos</option>
+          <option value="inactivos">Solo inactivos</option>
+        </select>
 
         {/* Stock */}
         <select

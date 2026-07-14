@@ -87,12 +87,28 @@ src/
   utils/         igv.ts, fechas.ts
 ```
 
+### Server Actions
+
+Todas las mutaciones usan `'use server'` actions en `src/app/(admin)/[dominio]/actions.ts` — no API routes. Patrón estándar:
+
+```ts
+'use server'
+export async function miAction(formData: FormData) {
+  const user = await verifySession()   // siempre primero
+  const supabase = await createClient()
+  // ...
+  revalidatePath('/ruta')
+}
+```
+
+Usar `requireAdmin()` solo cuando la acción exige rol admin explícitamente.
+
 ### Data layer
 
 - `src/tienda/data.ts` — queries storefront server-side (getStoreProducts, getStoreProductBySlug, getStoreCategories, getProductReviews)
 - `src/tienda/data-client.ts` — queries storefront browser-side (getStoreProductsClient)
 - `src/resenas/data.ts` — getAllReviewsAdmin
-- Ambos data.ts transforman rows DB → `UIProduct` via `toUIProduct()` interno
+- `src/tienda/transforms.ts` — `toUIProduct(DBProduct) → UIProduct`. Siempre usar esta función para convertir filas DB a tipo UI; nunca remapear manualmente.
 
 ### Estado
 
@@ -109,11 +125,30 @@ src/
 
 Tipos de dominio específico: `src/ventas/types.ts`, `src/reportes/types.ts`, `src/caja/types.ts`, `src/mercaderia/types.ts`, `src/tienda/types/`.
 
+### Utilidades
+
+| Archivo | Exports clave |
+|---|---|
+| `src/utils/igv.ts` | `IGV_DEFAULT_PCT = 18`, `redondearMonto()`, `formatearMonto()` (locale `es-PE`, moneda `PEN`) |
+| `src/utils/exportCsv.ts` | `downloadCsv(data, filename)` — client-only, agrega BOM UTF-8, append fecha al nombre |
+| `src/utils/fechas.ts` | Helpers de formateo de fechas |
+| `src/lib/storage.ts` | `uploadFile(bucket, path, file)` — usa `createAdminClient()` internamente; solo llamar desde Server Actions |
+| `src/lib/rateLimit.ts` | `rateLimit(ip, limit, windowMs)` — in-memory, para Route Handlers API |
+| `src/lib/constants.ts` | `ANONYMOUS_CLIENT_ID`, `ANONYMOUS_CLIENT_NAME`, `WHATSAPP_NUMBER/URL` |
+
+### Contextos del storefront
+
+`src/app/context/` contiene tres Context providers que wrappean `(site)/layout.tsx`:
+- `CartSidebarModalContext` — controla visibilidad del carrito lateral
+- `QuickViewModalContext` — modal de vista rápida de producto
+- `PreviewSliderContext` — slider de imágenes en PDP
+
 ### Notas importantes
 
 - `@/*` → `./src/*` (alias TypeScript)
 - `createAdminClient()` usa `SUPABASE_SERVICE_ROLE_KEY` — nunca llamar desde cliente
 - Supabase project ID: `pvurmbrdifngjytkkcwu` (producción activa con datos reales)
+- Admin layout (`src/app/(admin)/layout.tsx`) calcula `stockAlertCount` a nivel de layout, no por página
 - `cdn.sanity.io` en `next.config.ts` es residuo de migración — no agregar imágenes de Sanity
 - `@portabletext/react` en package.json no se usa — no importar
 
